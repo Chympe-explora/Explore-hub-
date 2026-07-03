@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Explore Hub — Explore. Experience. Remember.</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0f0d">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+
+  <div class="brand-hero">
+    <div class="brand-mark">
+      <img src="icons/icon-192.png" alt="">
+      <div>
+        <div class="name">EXPLORE HUB</div>
+        <div class="tagline">EXPLORATION</div>
+      </div>
+      <div style="margin-left:auto" class="icon-btn">🔔</div>
+    </div>
+    <h2>Explore. Experience.<br>Remember.</h2>
+    <p>All adventures. One destination.</p>
+    <div class="search-bar">
+      <span>🔍</span>
+      <input id="home-search" placeholder="Search activities, operators..." onkeydown="if(event.key==='Enter') location.href='explore.html?q='+encodeURIComponent(this.value)">
+    </div>
+  </div>
+
+  <div id="install-banner" class="install-banner" style="display:none">
+    <div class="t"><b>Install Explore Hub</b>Add to your home screen for quick access.</div>
+    <button onclick="triggerInstall()">Install</button>
+  </div>
+
+  <div class="chip-row">
+    <div class="info-chip"><b>24°C</b>Mostly Clear</div>
+    <div class="info-chip"><b>Good</b>Road Condition</div>
+    <div class="info-chip"><b>Oct – May</b>Best Time</div>
+  </div>
+
+  <div class="section-head">
+    <h3>Explore Activities</h3>
+    <a href="explore.html">View All</a>
+  </div>
+  <div class="icon-grid">
+    <a class="icon-item" href="explore.html?cat=Nature"><div class="circle">🏞️</div><span>Waterfall</span></a>
+    <a class="icon-item" href="explore.html?cat=Water"><div class="circle">🎋</div><span>Bamboo Rafting</span></a>
+    <a class="icon-item" href="explore.html?cat=Adventure"><div class="circle">🕳️</div><span>Cave Exploration</span></a>
+    <a class="icon-item" href="explore.html?cat=Water"><div class="circle">💧</div><span>Underground Pool</span></a>
+    <a class="icon-item" href="explore.html?cat=Nature"><div class="circle">⛺</div><span>Camping</span></a>
+    <a class="icon-item" href="explore.html?cat=Land"><div class="circle">🥾</div><span>Trekking</span></a>
+    <a class="icon-item" href="explore.html?cat=Land"><div class="circle">🚙</div><span>Off-Roading</span></a>
+    <a class="icon-item" href="explore.html?cat=Water"><div class="circle">🚣</div><span>Boating</span></a>
+  </div>
+
+  <div class="panel">
+    <h4>Why Book with EXPLORE HUB?</h4>
+    <div class="check-row"><span class="dot">✔</span> Verified Local Operators</div>
+    <div class="check-row"><span class="dot">✔</span> Real Reviews & Ratings</div>
+    <div class="check-row"><span class="dot">✔</span> Safe, Trusted & Reliable</div>
+  </div>
+
+  <div class="section-head">
+    <h3>Featured Operator</h3>
+    <a href="operators.html">View All</a>
+  </div>
+  <div id="featured-op"></div>
+
+  <div style="height:10px"></div>
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/app.js"></script>
+<script>
+renderBottomNav("home");
+
+(async () => {
+  await loadOperators();
+  const op = OPERATORS.find(o => o.id === "chympe") || OPERATORS[0];
+  if(!op) return;
+  document.getElementById("featured-op").innerHTML = `
+    <div class="op-card" onclick="location.href='operator-profile.html?id=${op.id}'" style="cursor:pointer">
+      <div class="head">
+        <div class="logo"><img src="icons/icon-192.png" style="width:100%;height:100%;object-fit:cover" alt=""></div>
+        <div>
+          <div class="name-row"><h4>${op.name}</h4></div>
+          <div class="verified">✔ Verified Operator</div>
+          <div class="meta">★ ${op.rating} (${op.reviews} reviews) · ${op.years} in Service</div>
+        </div>
+      </div>
+      <div class="tags" style="margin-top:12px">${op.tags}</div>
+      <div class="row-btns">
+        <button class="btn btn-secondary" onclick="event.stopPropagation();location.href='operator-profile.html?id=${op.id}'">Contact</button>
+        <button class="btn btn-primary" onclick="event.stopPropagation();location.href='operator-profile.html?id=${op.id}#packages'">View Packages</button>
+      </div>
+    </div>`;
+})();
+</script>
+</body>
+</html>
