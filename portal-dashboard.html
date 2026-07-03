@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Explore Hub Operator Portal</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <h1>Dashboard</h1>
+      <p style="margin:2px 0 0;color:var(--text-dim);font-size:11.5px">Welcome back, Team Chympe Exploration 👋</p>
+    </div>
+    <div style="display:flex;gap:10px">
+      <div class="icon-btn">🔔</div>
+      <div class="icon-btn"><img src="icons/icon-192.png" style="width:100%;height:100%;border-radius:50%;object-fit:cover"></div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="ic">📅</div><div class="num">128</div><div class="lbl">Total Bookings</div><div class="delta">+18% from last month</div></div>
+    <div class="stat-card"><div class="ic">💰</div><div class="num">₹78,450</div><div class="lbl">Total Earnings</div><div class="delta">+22% from last month</div></div>
+    <div class="stat-card"><div class="ic">👁️</div><div class="num">3,265</div><div class="lbl">Total Views</div><div class="delta">+15% from last month</div></div>
+    <div class="stat-card"><div class="ic">⭐</div><div class="num">4.8</div><div class="lbl">Total Reviews</div><div class="delta">+0.3 from last month</div></div>
+  </div>
+
+  <div class="section-head"><h3>Earnings Overview</h3></div>
+  <div style="padding:0 20px">
+    <canvas id="earnings" height="120"></canvas>
+  </div>
+
+  <div class="section-head"><h3>Upcoming Bookings</h3><a href="portal-bookings.html">View All</a></div>
+  <div id="dash-bookings"></div>
+
+  <div class="section-head"><h3>Recent Reviews</h3><a href="#">View All</a></div>
+  <div style="padding:0 20px 10px" id="dash-review"></div>
+
+  <div style="height:20px"></div>
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/app.js"></script>
+<script>
+renderPortalNav("dashboard");
+
+const demoUpcoming = [
+  {activity:"Bamboo Rafting",img:IMG.rafting,date:"21 May 2025",time:"10:00 AM",people:2},
+  {activity:"Cave Exploration",img:IMG.cave,date:"22 May 2025",time:"11:30 AM",people:4},
+  {activity:"Trekking",img:IMG.trekking,date:"23 May 2025",time:"9:00 AM",people:3},
+];
+
+(async () => {
+  const upcoming = await fetchBookings("upcoming", "chympe");
+  const list = (upcoming.length ? upcoming : demoUpcoming);
+  document.getElementById("dash-bookings").innerHTML = list.map(b=>`
+    <div class="list-row">
+      <img src="${b.img}" alt="">
+      <div class="body"><h4>${b.activity}</h4><p>${b.date} · ${b.time} · ${b.people} People — pay after tour</p></div>
+      <span class="badge upcoming">Upcoming</span>
+    </div>
+  `).join("");
+})();
+
+const r = REVIEWS[0];
+document.getElementById("dash-review").innerHTML = `
+  <div class="review-item" style="border-top:none">
+    <div class="rh">
+      <div class="av">${r.name[0]}</div>
+      <div><div class="rname">${r.name}</div><div class="rdate">${r.date}</div></div>
+      <div class="rstars">${'★'.repeat(r.stars)}</div>
+    </div>
+    <p>${r.text}</p>
+  </div>`;
+
+// simple earnings line chart, no library
+const c = document.getElementById("earnings");
+const ctx = c.getContext("2d");
+function drawChart(){
+  const w = c.clientWidth || 400;
+  c.width = w; c.height = 120;
+  const data = [8,14,10,22,18,26,24,30,28,33,31,36];
+  const max = Math.max(...data);
+  ctx.clearRect(0,0,w,120);
+  ctx.beginPath();
+  data.forEach((v,i)=>{
+    const x = (i/(data.length-1)) * (w-10) + 5;
+    const y = 110 - (v/max)*95;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = "#22c55e";
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.lineTo(w-5,115); ctx.lineTo(5,115); ctx.closePath();
+  ctx.fillStyle = "rgba(34,197,94,0.12)";
+  ctx.fill();
+}
+drawChart();
+window.addEventListener("resize", drawChart);
+</script>
+</body>
+</html>

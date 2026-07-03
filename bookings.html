@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Bookings — Explore Hub</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+  <div class="back-row">
+    <a class="icon-btn" href="index.html">←</a>
+    <h1>My Bookings</h1>
+    <span></span>
+  </div>
+
+  <div class="tabs" id="b-tabs">
+    <div class="tab active" data-tab="upcoming">Upcoming</div>
+    <div class="tab" data-tab="completed">Completed</div>
+    <div class="tab" data-tab="cancelled">Cancelled</div>
+  </div>
+
+  <div class="tab-panel active" data-panel="upcoming" id="panel-upcoming" style="padding:16px 0"></div>
+  <div class="tab-panel" data-panel="completed" id="panel-completed" style="padding:16px 0"></div>
+  <div class="tab-panel" data-panel="cancelled" id="panel-cancelled" style="padding:16px 0"></div>
+
+  <div style="height:20px"></div>
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/app.js"></script>
+<script>
+renderBottomNav("bookings");
+initTabs(document.getElementById("b-tabs"));
+
+// demo completed/cancelled entries so tabs aren't empty on a fresh Supabase project
+const demoCompleted = [{activity:"Trekking",operator:"Explorer's Den",img:IMG.trekking,date:"2 April 2025",time:"7:00 AM",people:3,total:1350,status:"completed"}];
+const demoCancelled = [{activity:"Off-Roading",operator:"Wander Trails",img:IMG.offroad,date:"18 March 2025",time:"9:00 AM",people:2,total:1800,status:"cancelled"}];
+
+function card(b){
+  return `
+  <div class="booking-card">
+    <img src="${b.img}" alt="">
+    <div class="body">
+      <div class="top">
+        <h4>${b.activity}</h4>
+        <span class="badge ${b.status}">${b.status[0].toUpperCase()+b.status.slice(1)}</span>
+      </div>
+      <p>${b.operator}</p>
+      <p>${b.date} · ${b.time} · ${b.people} People</p>
+      <div class="foot"><span>${b.status==="upcoming" ? "Due after tour" : "Total"}</span><b>${money(b.total)}</b></div>
+    </div>
+  </div>`;
+}
+
+function emptyState(msg){
+  return `<div style="text-align:center;padding:40px 20px;color:var(--text-faint);font-size:13px">${msg}</div>`;
+}
+
+(async () => {
+  document.getElementById("panel-upcoming").innerHTML = emptyState("Loading your bookings…");
+  const upcoming = await fetchBookings("upcoming");
+  document.getElementById("panel-upcoming").innerHTML = upcoming.map(card).join("") || emptyState("No upcoming bookings yet.");
+  document.getElementById("panel-completed").innerHTML = demoCompleted.map(card).join("");
+  document.getElementById("panel-cancelled").innerHTML = demoCancelled.map(card).join("");
+})();
+</script>
+</body>
+</html>

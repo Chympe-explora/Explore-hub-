@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — Explore Hub</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+  <div class="profile-head">
+    <div class="avatar">👤</div>
+    <h3>John Doe</h3>
+    <p>+91 98765 43210</p>
+  </div>
+
+  <div class="menu-list">
+    <a class="menu-item" href="bookings.html"><span class="ic">📅</span> My Bookings <span class="chev">›</span></a>
+    <a class="menu-item" href="#"><span class="ic">♥</span> Favorites <span class="chev">›</span></a>
+    <a class="menu-item" href="operator-profile.html?id=chympe#reviews"><span class="ic">⭐</span> My Reviews <span class="chev">›</span></a>
+    <a class="menu-item" href="#"><span class="ic">🔔</span> Notifications <span class="chev">›</span></a>
+    <a class="menu-item" href="portal-login.html" style="color:var(--green)"><span class="ic">🤝</span> Become a Partner <span class="chev">›</span></a>
+    <a class="menu-item" href="#"><span class="ic">❓</span> Help & Support <span class="chev">›</span></a>
+    <a class="menu-item" href="#"><span class="ic">⚙️</span> Settings <span class="chev">›</span></a>
+    <a class="menu-item" href="#"><span class="ic">ℹ️</span> About Us <span class="chev">›</span></a>
+    <a class="menu-item danger" href="index.html"><span class="ic">↩</span> Logout <span class="chev">›</span></a>
+  </div>
+
+  <div style="height:20px"></div>
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/app.js"></script>
+<script>renderBottomNav("profile");</script>
+</body>
+</html>

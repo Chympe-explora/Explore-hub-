@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activity — Explore Hub</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app" id="app-root">
+
+  <div class="hero-img">
+    <img id="hero-img" src="" alt="">
+    <div class="hero-overlay-top">
+      <a class="icon-btn" href="explore.html">←</a>
+      <div class="right">
+        <div class="icon-btn">↗</div>
+        <div class="icon-btn">♥</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-head">
+    <h2 id="act-name"></h2>
+    <a class="op-link" href="operator-profile.html?id=chympe" id="op-link"></a>
+    <div class="price-line">
+      <div class="price"><span id="act-price"></span><span> / person</span></div>
+      <div class="rating">★ <span id="act-rating"></span> <span id="act-reviews"></span></div>
+    </div>
+  </div>
+
+  <div class="stat-strip">
+    <div class="stat-box"><div class="ic">⏱️</div><div class="val">2-3 Hours</div><div class="lbl">Duration</div></div>
+    <div class="stat-box"><div class="ic">👥</div><div class="val">2 – 12</div><div class="lbl">Group Size</div></div>
+    <div class="stat-box"><div class="ic">🎂</div><div class="val">6+ Years</div><div class="lbl">Age</div></div>
+    <div class="stat-box"><div class="ic">📶</div><div class="val">Easy</div><div class="lbl">Difficulty</div></div>
+  </div>
+
+  <div class="panel" style="margin-top:0">
+    <h4>About</h4>
+    <p id="act-desc" style="font-size:12.5px;color:var(--text-dim);line-height:1.5;margin:0">Experience the thrill of this activity in crystal clear waters surrounded by breathtaking views.</p>
+  </div>
+
+  <div class="panel">
+    <h4>Includes</h4>
+    <div class="include-grid">
+      <div class="row"><span class="dot">✔</span> Equipment Provided</div>
+      <div class="row"><span class="dot">✔</span> Guide</div>
+      <div class="row"><span class="dot">✔</span> Life Jacket</div>
+      <div class="row"><span class="dot">✔</span> Safety Equipment</div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="location.href='operator-profile.html?id=chympe'">Enquire Now</button>
+    <button class="btn btn-primary" id="book-btn">Book Now</button>
+  </div>
+
+  <div class="section-head"><h3>Reviews</h3><a href="operator-profile.html?id=chympe#reviews">View All</a></div>
+  <div style="padding:0 20px 20px" id="reviews-mini"></div>
+
+  <div style="height:20px"></div>
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/app.js"></script>
+<script>
+renderBottomNav("explore");
+const id = qs("id") || "rafting";
+
+(async () => {
+  await loadActivities();
+  const a = ACTIVITIES.find(x=>x.id===id) || ACTIVITIES[1];
+
+  document.getElementById("hero-img").src = a.img;
+  document.getElementById("act-name").textContent = a.name;
+  document.getElementById("op-link").textContent = "Team Chympe Exploration";
+  document.getElementById("act-price").textContent = money(a.price);
+  document.getElementById("act-rating").textContent = a.rating;
+  document.getElementById("act-reviews").textContent = "("+a.reviews+" reviews)";
+  document.getElementById("act-desc").textContent = "Experience " + a.name.toLowerCase() + " — " + a.desc;
+  document.getElementById("book-btn").onclick = () => location.href = "booking.html?id="+a.id;
+  document.title = a.name + " — Explore Hub";
+
+  await loadReviews("chympe");
+  document.getElementById("reviews-mini").innerHTML = REVIEWS.slice(0,2).map(r=>`
+    <div class="review-item">
+      <div class="rh">
+        <div class="av">${r.name[0]}</div>
+        <div><div class="rname">${r.name}</div><div class="rdate">${r.date}</div></div>
+        <div class="rstars">${'★'.repeat(r.stars)}</div>
+      </div>
+      <p>${r.text}</p>
+    </div>
+  `).join("");
+})();
+</script>
+</body>
+</html>

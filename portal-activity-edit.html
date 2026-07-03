@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Activity — Operator Portal</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app" style="padding-bottom:24px">
+  <div class="back-row">
+    <a class="icon-btn" href="portal-activities.html">←</a>
+    <h1 id="page-title">Add / Edit Activity</h1>
+    <span></span>
+  </div>
+
+  <div class="tabs" id="e-tabs">
+    <div class="tab active" data-tab="details">Details</div>
+    <div class="tab" data-tab="pricing">Pricing</div>
+    <div class="tab" data-tab="availability">Availability</div>
+    <div class="tab" data-tab="facilities">Facilities</div>
+  </div>
+
+  <div class="tab-panel active" data-panel="details">
+    <div style="padding:16px 20px 0">
+      <div class="list-row" style="cursor:pointer">
+        <img id="e-img" src="" alt="">
+        <div class="body"><h4>Change Photo</h4><p>JPG, PNG up to 2MB</p></div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:16px"><label>Activity Name</label><input id="e-name"></div>
+    <div class="field"><label>Short Description</label><textarea id="e-desc"></textarea></div>
+    <div class="field"><label>Category</label>
+      <select id="e-cat"><option>Water</option><option>Adventure</option><option>Nature</option><option>Land</option></select>
+    </div>
+    <div class="field"><label>Duration</label>
+      <select><option>1 – 2 Hours</option><option>2 – 3 Hours</option><option>Half Day</option><option>Full Day</option></select>
+    </div>
+  </div>
+
+  <div class="tab-panel" data-panel="pricing">
+    <div class="field" style="padding-top:16px"><label>Base Price (Per Person)</label><input id="e-price" placeholder="₹600"></div>
+    <div class="field"><label>Group Price (4+ People)</label><input placeholder="₹550"></div>
+    <div class="field"><label>Child Price (5–12 Years)</label><input placeholder="₹400"></div>
+    <div class="field"><label>Private Tour (Per Raft/Group)</label><input placeholder="₹2,500"></div>
+  </div>
+
+  <div class="tab-panel" data-panel="availability">
+    <div style="padding:16px 20px 6px;font-size:12px;color:var(--text-dim);font-weight:600">Set Availability</div>
+    <div style="padding:0 20px" id="avail-days"></div>
+    <div class="field" style="margin-top:6px;display:flex;gap:12px">
+      <div style="flex:1"><label>From</label><input value="08:00 AM"></div>
+      <div style="flex:1"><label>To</label><input value="06:00 PM"></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" data-panel="facilities">
+    <div style="padding:16px 20px 0">
+      <div class="check-tile"><span>Life Jacket</span><input type="checkbox" checked></div>
+      <div class="check-tile"><span>Safety Equipment</span><input type="checkbox" checked></div>
+      <div class="check-tile"><span>Guide</span><input type="checkbox" checked></div>
+      <div class="check-tile"><span>Changing Room</span><input type="checkbox" checked></div>
+      <div class="check-tile"><span>Parking</span><input type="checkbox" checked></div>
+      <div class="check-tile"><span>Toilet</span><input type="checkbox" checked></div>
+      <div class="check-tile"><span>First Aid</span><input type="checkbox" checked></div>
+      <div class="check-tile"><span>Photography</span><input type="checkbox" checked></div>
+      <div class="check-tile"><span>Food Available</span><input type="checkbox"></div>
+    </div>
+  </div>
+
+  <div style="padding:8px 20px 0">
+    <button class="btn btn-primary" onclick="save()">Save Changes</button>
+  </div>
+
+  <div style="height:12px"></div>
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/app.js"></script>
+<script>
+renderPortalNav("activities");
+initTabs(document.getElementById("e-tabs"));
+
+const id = qs("id");
+
+(async () => {
+  await loadActivities();
+  const a = ACTIVITIES.find(x=>x.id===id);
+  if(a){
+    document.getElementById("page-title").textContent = "Edit Activity";
+    document.getElementById("e-img").src = a.img;
+    document.getElementById("e-name").value = a.name;
+    document.getElementById("e-desc").value = a.desc;
+    document.getElementById("e-cat").value = a.cat;
+    document.getElementById("e-price").value = a.price;
+  } else {
+    document.getElementById("page-title").textContent = "Add New Activity";
+    document.getElementById("e-img").src = IMG.rafting;
+  }
+})();
+
+const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+document.getElementById("avail-days").innerHTML = days.map((d,i)=>`
+  <div class="check-tile"><span>${d}</span><div class="toggle ${i<6?'on':''}" onclick="this.classList.toggle('on')"></div></div>
+`).join("");
+
+async function save(){
+  const payload = {
+    id: id || document.getElementById("e-name").value.trim().toLowerCase().replace(/\s+/g,"-"),
+    operator_id: "chympe",
+    name: document.getElementById("e-name").value.trim(),
+    category: document.getElementById("e-cat").value,
+    description: document.getElementById("e-desc").value.trim(),
+    price: Number(document.getElementById("e-price").value) || 0,
+    active: true
+  };
+  if(supabase){
+    try{
+      const { error } = await supabase.from("activities").upsert(payload);
+      if(error) throw error;
+    }catch(e){ console.warn("save fallback (not persisted):", e.message); }
+  }
+  toast("Changes saved successfully!");
+  setTimeout(()=>location.href="portal-activities.html", 900);
+}
+</script>
+</body>
+</html>

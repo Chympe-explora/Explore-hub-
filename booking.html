@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Activity — Explore Hub</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app" style="padding-bottom:110px">
+  <div class="back-row">
+    <a class="icon-btn" href="javascript:history.back()">←</a>
+    <h1>Book Activity</h1>
+    <span></span>
+  </div>
+
+  <div class="list-row" style="margin:0 20px 4px">
+    <img id="b-img" src="" alt="">
+    <div class="body">
+      <h4 id="b-name"></h4>
+      <p id="b-op"></p>
+    </div>
+    <b style="color:var(--green);font-size:13px" id="b-price"></b>
+  </div>
+
+  <div class="cal-head"><b>May 2025</b><span style="color:var(--text-faint)">‹ ›</span></div>
+  <div class="cal-grid" id="cal"></div>
+
+  <div class="section-head"><h3>Number of People</h3></div>
+  <div style="padding:0 20px">
+    <div class="stepper" data-value="2">
+      <button class="minus">−</button><span class="n">2</span><button class="plus">+</button>
+    </div>
+  </div>
+
+  <div class="field" style="margin-top:20px">
+    <label>Full Name</label>
+    <input id="f-name" placeholder="John Doe">
+  </div>
+  <div class="field">
+    <label>Phone Number</label>
+    <input id="f-phone" placeholder="98765 43210">
+  </div>
+  <div class="field">
+    <label>Message (Optional)</label>
+    <textarea id="f-msg" placeholder="Any special request?"></textarea>
+  </div>
+
+  <div class="panel" style="border-color:var(--green-dark)">
+    <div class="check-row" style="margin:0"><span class="dot">💚</span> No advance payment — pay the operator directly after your tour.</div>
+  </div>
+
+  <div class="total-bar" style="bottom:0">
+    <div class="amt"><div class="lbl">Amount Due After Tour</div><div class="val" id="b-total">₹0</div></div>
+    <button class="btn btn-primary" id="confirm-btn" style="flex:1">Confirm Booking</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/app.js"></script>
+<script>
+const id = qs("id") || "rafting";
+let a = ACTIVITIES.find(x=>x.id===id) || ACTIVITIES[1];
+
+(async () => {
+  await loadActivities();
+  a = ACTIVITIES.find(x=>x.id===id) || ACTIVITIES[1];
+  document.getElementById("b-img").src = a.img;
+  document.getElementById("b-name").textContent = a.name;
+  document.getElementById("b-op").textContent = "Team Chympe Exploration";
+  document.getElementById("b-price").textContent = money(a.price) + " / person";
+  document.title = "Book " + a.name;
+  updateTotal();
+})();
+
+let selectedDate = "14";
+const days = ["S","M","T","W","T","F","S"];
+const dates = [
+  ["","","","","1","2","3"],
+  ["4","5","6","7","8","9","10"],
+  ["11","12","13","14","15","16","17"],
+  ["18","19","20","21","22","23","24"],
+  ["25","26","27","28","29","30","31"],
+];
+let cal = days.map(d=>`<div class="dow">${d}</div>`).join("");
+dates.flat().forEach(d=>{
+  cal += `<div class="day ${d===selectedDate?'sel':''}" ${d?`onclick="selectDay(this,'${d}')"`:''}>${d}</div>`;
+});
+document.getElementById("cal").innerHTML = cal;
+function selectDay(el, d){
+  document.querySelectorAll(".cal-grid .day").forEach(x=>x.classList.remove("sel"));
+  el.classList.add("sel");
+  selectedDate = d;
+}
+
+let people = 2;
+const stepperEl = document.querySelector(".stepper");
+initStepper(stepperEl, 1, 20, (v)=>{ people = v; updateTotal(); });
+
+function updateTotal(){
+  document.getElementById("b-total").textContent = money(a.price * people);
+}
+updateTotal();
+
+document.getElementById("confirm-btn").onclick = async () => {
+  const name = document.getElementById("f-name").value.trim() || "Guest";
+  const phone = document.getElementById("f-phone").value.trim() || "";
+  const message = document.getElementById("f-msg").value.trim();
+  const btn = document.getElementById("confirm-btn");
+  btn.textContent = "Booking…"; btn.disabled = true;
+
+  await createBooking({
+    activityId: a.id,
+    operatorId: "chympe",
+    activityName: a.name,
+    operatorName: "Team Chympe Exploration",
+    img: a.img,
+    name, phone, message,
+    date: `2025-05-${selectedDate.padStart(2,"0")}`,
+    time: "10:00 AM",
+    people: people,
+    total: a.price * people
+  });
+
+  toast("Booking confirmed, " + name + " — pay after your tour!");
+  setTimeout(()=> location.href = "bookings.html", 900);
+};
+</script>
+</body>
+</html>

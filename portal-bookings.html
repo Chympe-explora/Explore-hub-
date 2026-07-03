@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings — Operator Portal</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+  <div class="back-row">
+    <a class="icon-btn" href="portal-dashboard.html">←</a>
+    <h1>Bookings</h1>
+    <span></span>
+  </div>
+
+  <div class="tabs" id="pb-tabs">
+    <div class="tab active" data-tab="upcoming">Upcoming</div>
+    <div class="tab" data-tab="completed">Completed</div>
+    <div class="tab" data-tab="cancelled">Cancelled</div>
+  </div>
+
+  <div class="tab-panel active" data-panel="upcoming" style="padding-top:14px" id="p-up"></div>
+  <div class="tab-panel" data-panel="completed" style="padding-top:14px" id="p-comp"></div>
+  <div class="tab-panel" data-panel="cancelled" style="padding-top:14px" id="p-cancel"></div>
+
+  <div style="height:20px"></div>
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/app.js"></script>
+<script>
+renderPortalNav("bookings");
+initTabs(document.getElementById("pb-tabs"));
+
+const demoComp = [{activity:"Trekking",img:IMG.trekking,customer:"Priya N.",date:"2 April 2025",time:"7:00 AM",people:3,total:1350}];
+const demoCancel = [{activity:"Off-Roading",img:IMG.offroad,customer:"Rahul V.",date:"18 March 2025",time:"9:00 AM",people:2,total:1800}];
+
+function card(b, status){
+  return `
+  <div class="booking-card">
+    <img src="${b.img}" alt="">
+    <div class="body">
+      <div class="top"><h4>${b.activity}</h4><span class="badge ${status}">${status[0].toUpperCase()+status.slice(1)}</span></div>
+      <p>Customer: ${b.customer}</p>
+      <p>${b.date} · ${b.time} · ${b.people} People</p>
+      <div class="foot"><span>${status==="upcoming" ? "Collect after tour" : "Total"}</span><b>${money(b.total)}</b></div>
+    </div>
+  </div>`;
+}
+
+(async () => {
+  const up = await fetchBookings("upcoming", "chympe");
+  document.getElementById("p-up").innerHTML = up.map(b=>card(b,"upcoming")).join("") || `<div style="text-align:center;color:var(--text-faint);padding:40px 20px;font-size:13px">No upcoming bookings.</div>`;
+  document.getElementById("p-comp").innerHTML = demoComp.map(b=>card(b,"completed")).join("");
+  document.getElementById("p-cancel").innerHTML = demoCancel.map(b=>card(b,"cancelled")).join("");
+})();
+</script>
+</body>
+</html>

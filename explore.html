@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explore Activities — Explore Hub</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+  <div class="back-row">
+    <a class="icon-btn" href="index.html">←</a>
+    <h1>Explore Activities</h1>
+    <a class="icon-btn" href="#">🔍</a>
+  </div>
+
+  <div class="filter-row" id="filters">
+    <button class="filter-chip" data-cat="All">All</button>
+    <button class="filter-chip" data-cat="Adventure">Adventure</button>
+    <button class="filter-chip" data-cat="Water">Water</button>
+    <button class="filter-chip" data-cat="Nature">Nature</button>
+    <button class="filter-chip" data-cat="Land">Land</button>
+  </div>
+
+  <div class="list" id="act-list"></div>
+
+  <div style="height:20px"></div>
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/app.js"></script>
+<script>
+renderBottomNav("explore");
+
+function render(cat){
+  const list = document.getElementById("act-list");
+  const items = cat==="All" ? ACTIVITIES : ACTIVITIES.filter(a=>a.cat===cat);
+  list.innerHTML = items.map(a => `
+    <a class="act-card" href="activity.html?id=${a.id}">
+      <img src="${a.img}" alt="${a.name}">
+      <div class="body">
+        <div class="top">
+          <h4>${a.name}</h4>
+        </div>
+        <p>${a.desc}</p>
+        <div class="rating">★ ${a.rating} <span>(${a.reviews})</span></div>
+      </div>
+      <span class="chevron">›</span>
+    </a>
+  `).join("");
+}
+
+const initialCat = qs("cat") || "All";
+document.querySelectorAll(".filter-chip").forEach(chip=>{
+  if(chip.dataset.cat === initialCat) chip.classList.add("active");
+  chip.addEventListener("click", ()=>{
+    document.querySelectorAll(".filter-chip").forEach(c=>c.classList.remove("active"));
+    chip.classList.add("active");
+    render(chip.dataset.cat);
+  });
+});
+
+(async () => {
+  document.getElementById("act-list").innerHTML = `<div style="padding:30px;text-align:center;color:var(--text-faint);font-size:12.5px">Loading activities…</div>`;
+  await loadActivities();
+  render(initialCat);
+})();
+</script>
+</body>
+</html>
